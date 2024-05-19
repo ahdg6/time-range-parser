@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterEach, jest } from 'bun:test';
-import {type DateRange, DateRangeParser} from './index';
+import DateRangeParser, {type DateRange} from './index';
 
 // Helper function to create a DateRange object with milliseconds
 const createDateRange = (start: number, end: number): DateRange => ({ start, end });
