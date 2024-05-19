@@ -29,6 +29,6 @@
   },
   "scripts": {
     "test": "bun test",
-    "build:ts": "pkgroll"
+    "build:ts": "pkgroll --minify"
   }
 }
