@@ -1,0 +1,32 @@
+{
+  "name": "time-range-parser",
+  "version": "0.1.0",
+  "description": "Parse human time input to Date object.",
+  "type": "module",
+  "repository": "github:ahdg6/time-range-parser",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "pkgroll": "^2.1.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "test": "bun test",
+    "build:ts": "pkgroll"
+  },
+  "dependencies": {}
+}
