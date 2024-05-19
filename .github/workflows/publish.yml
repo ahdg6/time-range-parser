@@ -37,7 +37,7 @@ jobs:
         run: pnpm install
 
       - name: Build Packages
-        run: pnpm build
+        run: pnpm build:ts
         
       - uses: JS-DevTools/npm-publish@v3
         with:

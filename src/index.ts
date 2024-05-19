@@ -3,7 +3,7 @@ import { DateRangeHandlers } from './DateRangeHandlers';
 export type DateRange = { start: Date | number | null; end: Date | number | null };
 export type DateToken = { rel?: number; start?: number; end?: number; now?: number };
 
-export class DateRangeParser {
+export default class DateRangeParser {
     private static readonly TIME_UNITS = DateRangeHandlers.TIME_UNITS;
 
     private static readonly TIME_ALIASES: Record<string, string[]> = {
