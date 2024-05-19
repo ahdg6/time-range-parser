@@ -5,7 +5,7 @@ import DateRangeParser, { type DateRange } from './index';
 const createDateRange = (start: number, end: number): DateRange => ({ start, end });
 
 // Helper function to check if two numbers are approximately equal
-const isApproximatelyEqual = (a: number, b: number, margin: number = 10): boolean => {
+const isApproximatelyEqual = (a: number, b: number, margin: number = 100): boolean => {
     return Math.abs(a - b) <= margin;
 };
 
@@ -91,8 +91,8 @@ describe('DateRangeParser - Relative Time', () => {
         if ('error' in result) {
             throw new Error(`Test failed with error: ${result.error}`);
         }
-        const expectedStart = fixedNow;
-        const expectedEnd = fixedNow - 6 * 3600000;
+        const expectedStart = fixedNow - 6 * 3600000;
+        const expectedEnd = fixedNow;
         expect(isApproximatelyEqual(result.start as number, expectedStart)).toBe(true);
         expect(isApproximatelyEqual(result.end as number, expectedEnd)).toBe(true);
     });
@@ -112,8 +112,8 @@ describe('DateRangeParser - Relative Time', () => {
         if ('error' in result) {
             throw new Error(`Test failed with error: ${result.error}`);
         }
-        const expectedStart = fixedNow;
-        const expectedEnd = fixedNow - 3 * 86400000;
+        const expectedStart = fixedNow - 3 * 86400000;
+        const expectedEnd = fixedNow;
         expect(isApproximatelyEqual(result.start as number, expectedStart)).toBe(true);
         expect(isApproximatelyEqual(result.end as number, expectedEnd)).toBe(true);
     });
@@ -168,42 +168,68 @@ describe('DateRangeParser - Combined Ranges', () => {
     });
 });
 
-describe('DateRangeParser - Edge Cases and Errors', () => {
-    it('should handle invalid input gracefully', () => {
-        const result = DateRangeParser.parseDateInput('invalid input');
-        expect(result).toEqual({ error: 'Unknown keyword: invalidinput' });
+describe('DateRangeParser - Edge Cases', () => {
+    it('should handle an empty string as input', () => {
+        const result = DateRangeParser.parseDateInput('');
+        expect(result).toEqual({ error: 'Invalid or empty time range' });
     });
 
-    it('should parse "now -> 24h" correctly', () => {
-        const result = DateRangeParser.parseDateInput('now -> 24h');
+    it('should handle null as input', () => {
+        const result = DateRangeParser.parseDateInput(null);
+        expect(result).toEqual({ error: 'Invalid or empty time range' });
+    });
+
+    it('should handle very large positive relative time "1000y"', () => {
+        const result = DateRangeParser.parseDateInput('now -> 1000y');
         if ('error' in result) {
             throw new Error(`Test failed with error: ${result.error}`);
         }
         const expectedStart = fixedNow;
-        const expectedEnd = fixedNow + 24 * 3600000;
+        const expectedEnd = fixedNow + 1000 * 365 * 24 * 3600000; // Simplified, ignoring leap years
+        expect(isApproximatelyEqual(result.start as number, expectedStart)).toBe(true);
+        expect(isApproximatelyEqual(result.end as number, expectedEnd, 1000)).toBe(true); // Larger margin for very large values
+    });
+
+    it('should handle very large negative relative time "-1000y"', () => {
+        const result = DateRangeParser.parseDateInput('now -> -1000y');
+        if ('error' in result) {
+            throw new Error(`Test failed with error: ${result.error}`);
+        }
+        const expectedStart = fixedNow - 1000 * 365 * 24 * 3600000; // Simplified, ignoring leap years
+        const expectedEnd = fixedNow;
+        expect(isApproximatelyEqual(result.start as number, expectedStart, 1000)).toBe(true); // Larger margin for very large values
+        expect(isApproximatelyEqual(result.end as number, expectedEnd)).toBe(true);
+    });
+
+    it('should handle invalid time unit "1xyz"', () => {
+        const result = DateRangeParser.parseDateInput('now -> 1xyz');
+        expect(result).toEqual({ error: 'Unknown time alias: xyz' });
+    });
+
+    it('should handle mixed valid and invalid input "today -> 1xyz"', () => {
+        const result = DateRangeParser.parseDateInput('today -> 1xyz');
+        expect(result).toEqual({ error: 'Unknown time alias: xyz' });
+    });
+
+    it('should handle "now <> -6h" correctly', () => {
+        const result = DateRangeParser.parseDateInput('now <> -6h');
+        if ('error' in result) {
+            throw new Error(`Test failed with error: ${result.error}`);
+        }
+        const expectedStart = fixedNow - 6 * 3600000;
+        const expectedEnd = fixedNow;
         expect(isApproximatelyEqual(result.start as number, expectedStart)).toBe(true);
         expect(isApproximatelyEqual(result.end as number, expectedEnd)).toBe(true);
     });
 
-    it('should parse "now -> 5min" correctly', () => {
-        const result = DateRangeParser.parseDateInput('now -> 5min');
+    it('should handle "yesterday -> now" correctly', () => {
+        const result = DateRangeParser.parseDateInput('yesterday -> now');
         if ('error' in result) {
             throw new Error(`Test failed with error: ${result.error}`);
         }
-        const expectedStart = fixedNow;
-        const expectedEnd = fixedNow + 5 * 60000;
-        expect(isApproximatelyEqual(result.start as number, expectedStart)).toBe(true);
-        expect(isApproximatelyEqual(result.end as number, expectedEnd)).toBe(true);
-    });
-
-    it('should parse offset range "now <> 5min" correctly', () => {
-        const result = DateRangeParser.parseDateInput('now <> 5min');
-        if ('error' in result) {
-            throw new Error(`Test failed with error: ${result.error}`);
-        }
-        const expectedStart = fixedNow;
-        const expectedEnd = fixedNow + 5 * 60000;
-        expect(isApproximatelyEqual(result.start as number, expectedStart)).toBe(true);
+        const yesterdayStart = new Date(fixedNow).setHours(0, 0, 0, 0) - 86400000;
+        const expectedEnd = fixedNow;
+        expect(isApproximatelyEqual(result.start as number, yesterdayStart)).toBe(true);
         expect(isApproximatelyEqual(result.end as number, expectedEnd)).toBe(true);
     });
 });

@@ -128,6 +128,9 @@ export default class DateRangeParser {
         }
         const offsetStart = term1.start;
         const offsetEnd = offsetStart + term2.rel;
-        return { start: offsetStart, end: offsetEnd };
+        // 确保 start 和 end 的顺序正确
+        const start = Math.min(offsetStart, offsetEnd);
+        const end = Math.max(offsetStart, offsetEnd);
+        return { start, end };
     }
 }
