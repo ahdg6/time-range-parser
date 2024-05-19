@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterEach, jest } from 'bun:test';
-import DateRangeParser, {type DateRange} from './index';
+import DateRangeParser, { type DateRange } from './index';
 
 // Helper function to create a DateRange object with milliseconds
 const createDateRange = (start: number, end: number): DateRange => ({ start, end });
@@ -17,9 +17,9 @@ beforeAll(() => {
 
 afterEach(() => {
     jest.restoreAllMocks();
-})
+});
 
-describe('DateRangeParser', () => {
+describe('DateRangeParser - Keywords', () => {
     it('should parse "now" correctly', () => {
         const result = DateRangeParser.parseDateInput('now');
         if ('error' in result) {
@@ -72,7 +72,9 @@ describe('DateRangeParser', () => {
         }
         expect(result).toEqual(createDateRange(startOfYear, endOfYear));
     });
+});
 
+describe('DateRangeParser - Relative Time', () => {
     it('should parse relative time "6h" correctly', () => {
         const result = DateRangeParser.parseDateInput('now -> 6h');
         if ('error' in result) {
@@ -80,6 +82,17 @@ describe('DateRangeParser', () => {
         }
         const expectedStart = fixedNow;
         const expectedEnd = fixedNow + 6 * 3600000;
+        expect(isApproximatelyEqual(result.start as number, expectedStart)).toBe(true);
+        expect(isApproximatelyEqual(result.end as number, expectedEnd)).toBe(true);
+    });
+
+    it('should parse negative relative time "-6h" correctly', () => {
+        const result = DateRangeParser.parseDateInput('now -> -6h');
+        if ('error' in result) {
+            throw new Error(`Test failed with error: ${result.error}`);
+        }
+        const expectedStart = fixedNow;
+        const expectedEnd = fixedNow - 6 * 3600000;
         expect(isApproximatelyEqual(result.start as number, expectedStart)).toBe(true);
         expect(isApproximatelyEqual(result.end as number, expectedEnd)).toBe(true);
     });
@@ -94,34 +107,19 @@ describe('DateRangeParser', () => {
         expect(result).toEqual(createDateRange(startOfDay, offsetEnd));
     });
 
-    it('should parse offset range "now <> 3d" correctly', () => {
-        const startOfDay = new Date(fixedNow).setHours(0, 0, 0, 0);
-        const offsetEnd = startOfDay + 2 * 86400000;
-        const result = DateRangeParser.parseDateInput('today <> 2d');
-        if ('error' in result) {
-            throw new Error(`Test failed with error: ${result.error}`);
-        }
-        expect(result).toEqual(createDateRange(startOfDay, offsetEnd));
-    });
-
-    it('should handle invalid input gracefully', () => {
-        const result = DateRangeParser.parseDateInput('invalid input');
-        expect(result).toEqual({ error: 'Unknown keyword: invalidinput' });
-    });
-});
-
-describe('DateRangeParser additional tests', () => {
-    it('should parse "now -> 24h" correctly', () => {
-        const result = DateRangeParser.parseDateInput('now -> 24h');
+    it('should parse offset range "now <> -3d" correctly', () => {
+        const result = DateRangeParser.parseDateInput('now <> -3d');
         if ('error' in result) {
             throw new Error(`Test failed with error: ${result.error}`);
         }
         const expectedStart = fixedNow;
-        const expectedEnd = fixedNow + 24 * 3600000;
+        const expectedEnd = fixedNow - 3 * 86400000;
         expect(isApproximatelyEqual(result.start as number, expectedStart)).toBe(true);
         expect(isApproximatelyEqual(result.end as number, expectedEnd)).toBe(true);
     });
+});
 
+describe('DateRangeParser - Combined Ranges', () => {
     it('should parse "yesterday -> today" correctly', () => {
         const yesterdayStart = new Date(fixedNow).setHours(0, 0, 0, 0) - 86400000;
         const todayEnd = new Date(fixedNow).setHours(0, 0, 0, 0) + 86400000 - 1;
@@ -168,24 +166,21 @@ describe('DateRangeParser additional tests', () => {
         }
         expect(result).toEqual(createDateRange(lastYearStart, thisYearEnd));
     });
+});
 
-    it('should parse offset range "yesterday <> 3d" correctly', () => {
-        const yesterdayStart = new Date(fixedNow).setHours(0, 0, 0, 0) - 86400000;
-        const offsetEnd = yesterdayStart + 3 * 86400000;
-        const result = DateRangeParser.parseDateInput('yesterday <> 3d');
-        if ('error' in result) {
-            throw new Error(`Test failed with error: ${result.error}`);
-        }
-        expect(result).toEqual(createDateRange(yesterdayStart, offsetEnd));
+describe('DateRangeParser - Edge Cases and Errors', () => {
+    it('should handle invalid input gracefully', () => {
+        const result = DateRangeParser.parseDateInput('invalid input');
+        expect(result).toEqual({ error: 'Unknown keyword: invalidinput' });
     });
 
-    it('should parse "now -> 3d" correctly', () => {
-        const result = DateRangeParser.parseDateInput('now -> 3d');
+    it('should parse "now -> 24h" correctly', () => {
+        const result = DateRangeParser.parseDateInput('now -> 24h');
         if ('error' in result) {
             throw new Error(`Test failed with error: ${result.error}`);
         }
         const expectedStart = fixedNow;
-        const expectedEnd = fixedNow + 3 * 86400000;
+        const expectedEnd = fixedNow + 24 * 3600000;
         expect(isApproximatelyEqual(result.start as number, expectedStart)).toBe(true);
         expect(isApproximatelyEqual(result.end as number, expectedEnd)).toBe(true);
     });
