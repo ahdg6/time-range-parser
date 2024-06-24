@@ -12,7 +12,7 @@ dependencies:
 devDependencies:
   '@types/bun':
     specifier: latest
-    version: 1.1.4
+    version: 1.1.5
   pkgroll:
     specifier: ^2.1.0
     version: 2.1.1(typescript@5.4.5)
@@ -464,10 +464,10 @@ packages:
     dev: true
     optional: true
 
-  /@types/bun@1.1.4:
-    resolution: {integrity: sha512-ejSuv/3s0hTHj/nkkLzBlHxm4JxOPygbLNi0kzM6ooq8rOiQvIUCv7RRErTaWSfb+QVnKz6x7qlp8N86bGDiIg==}
+  /@types/bun@1.1.5:
+    resolution: {integrity: sha512-7RprVDMF+1o+EWSo7F1+iJpkfNz+Ikw9K//vwambcY+D1QHXfb9l7jWY1hSBfuFEkW9yFAhkMzP2uTi1pQXoqw==}
     dependencies:
-      bun-types: 1.1.13
+      bun-types: 1.1.14
     dev: true
 
   /@types/estree@1.0.5:
@@ -505,8 +505,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /bun-types@1.1.13:
-    resolution: {integrity: sha512-G/TqF0SsMQGLr4g7K3B2BK8BrPEA1EqCNwxZbyRdj5M4t54zvwyaqvRJOW34kuPqc2IvNNalRU3swc8B4oc4FA==}
+  /bun-types@1.1.14:
+    resolution: {integrity: sha512-esfxOvECTkjEuUEHBOoOo590Qggf4b9cz5h29AOB2SKt3yZwG3LbAX4iIYwWZX7GnO7vaY5hIdcQygwN0xGdNw==}
     dependencies:
       '@types/node': 20.12.12
       '@types/ws': 8.5.10
